@@ -22,7 +22,7 @@ var options = {
 
 var d = new Date()
 var endTime = Math.round(d.getTime() / 1000)
-var startTime = (endTime - 24 * 60 * 60) // 3 hours
+var startTime = (endTime - 24 * 60 * 60) // 24 hours
 
 var authClient = lumolift.Auth(options)
 var authUri = authClient.code.getUri()
@@ -34,9 +34,7 @@ var port = process.env.PORT || defaultUrl.port
 app.get(defaultUrl.pathname, function (req, res) {
   return authClient.code.getToken(req.originalUrl).then(function(auth) {
     return auth.refresh().then(function(refreshed) {
-      console.log(refreshed)
       var token = refreshed.accessToken
-      console.log('Access token is ' + token)
       var client = new lumolift.Client(token)
       // client.activities(startTime, endTime, 'posture').then(function (data) {
       client.activities(startTime, endTime).then(function (data) {
@@ -44,6 +42,7 @@ app.get(defaultUrl.pathname, function (req, res) {
         process.exit()
       }).catch(function(error){
         console.error(error)
+        res.json(error)
         process.exit()
       })
     }).catch(function(error){
